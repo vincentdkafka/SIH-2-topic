@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: lca-analysis-tool
+    runtime: python3
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_DEBUG
+        value: False
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+      - key: SECRET_KEY
+        generateValue: true
+    autoDeploy: true
+    disk:
+      name: lca-storage
+      mountPath: /opt/render/project/src/static
+      sizeGB: 1

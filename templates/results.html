@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}LCA Results{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block body_class %}p-4 flex flex-col items-center{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-xl p-8 mt-8 max-w-4xl w-full">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-2">LCA Results for {{ material_name }}</h1>
+        <p class="text-xl text-gray-600">Analyzing <strong>{{ quantity }} kg</strong> of material</p>
+    </div>
+
+    <!-- High-Level Sustainability Scorecard -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Sustainability Scorecard</h2>
+        <div class="p-6 rounded-lg text-center shadow-md {{ overall_score_class }}">
+            <p class="text-7xl font-bold">{{ overall_score }}</p>
+            <p class="text-xl font-semibold mt-2">Overall LCA Score</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 text-center">
+            <div class="p-4 rounded-lg score-medium shadow-md">
+                <p class="font-bold text-2xl">{{ carbon }}</p>
+                <p class="text-sm">Carbon Footprint (kg CO2e)</p>
+            </div>
+            <div class="p-4 rounded-lg score-medium shadow-md">
+                <p class="font-bold text-2xl">{{ water }}</p>
+                <p class="text-sm">Water Usage (m³)</p>
+            </div>
+            <div class="p-4 rounded-lg score-medium shadow-md">
+                <p class="font-bold text-2xl">{{ energy }}</p>
+                <p class="text-sm">Energy (kWh)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Life Cycle Stage Breakdown -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Life Cycle Stage Breakdown</h2>
+        <canvas id="lifecycleChart"></canvas>
+        <p class="text-center text-sm text-gray-500 mt-2">
+            <strong>Hotspot Identified:</strong> {{ hotspot_stage }} has the highest impact.
+        </p>
+    </div>
+
+    <!-- Comparison and Scenario Analysis -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Comparison & What-If Scenario</h2>
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 shadow-md">
+            <p class="text-lg text-blue-800 font-semibold">
+                <strong>Insight:</strong> Your choice of material significantly impacts sustainability. Switching to a recycled material would improve the LCA score from
+                <span class="font-bold">~{{ virgin_score }}</span> to <span class="font-bold">~{{ recycled_score }}</span>, representing a huge step towards a circular economy.
+            </p>
+        </div>
+    </div>
+    
+    <div class="text-center mt-8">
+        <a href="/" class="inline-block bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-full hover:bg-gray-400">
+            Run a New Analysis
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const ctx = document.getElementById('lifecycleChart').getContext('2d');
+    const lifecycleChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Raw Material Extraction', 'Manufacturing & Processing', 'Transportation', 'End-of-Life'],
+            datasets: [{
+                label: 'Impact by Stage (%)',
+                data: [{{ lifecycle_data['Raw Material Extraction'] }}, {{ lifecycle_data['Manufacturing & Processing'] }}, {{ lifecycle_data['Transportation'] }}, {{ lifecycle_data['End-of-Life'] }}],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)', 
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
